@@ -1,0 +1,5 @@
+http://www.xx5xx.top/Writeup/WEB/%E5%8D%95popen%E5%87%BD%E6%95%B0getshell/
+http://www.xx5xx.top/Writeup/MISC/TCP-urgent-pointer/
+http://www.xx5xx.top/Writeup/WEB/show-columns-%E6%B3%A8%E5%85%A5/
+http://www.xx5xx.top/Writeup/WEB/php-cgi%E4%B9%8B%E8%8E%B7%E5%8F%96%E6%BA%90%E7%A0%81/
+http://www.xx5xx.top/Writeup/WEB/sql%E6%B3%A8%E5%85%A5%E4%B9%8B%E7%BC%96%E5%86%99sqlmap-tamper%E8%84%9A%E6%9C%AC%E5%AE%9E%E7%8E%B0%E7%BB%95%E8%BF%87/
