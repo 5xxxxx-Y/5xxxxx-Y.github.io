@@ -4,6 +4,35 @@
   
     
     <entry>
+      <title>记一次edu站点的文件上传漏洞挖掘</title>
+      <link href="/SRC/%E8%AE%B0%E4%B8%80%E6%AC%A1edu%E7%AB%99%E7%82%B9%E7%9A%84%E6%96%87%E4%BB%B6%E4%B8%8A%E4%BC%A0%E6%BC%8F%E6%B4%9E%E6%8C%96%E6%8E%98/"/>
+      <url>/SRC/%E8%AE%B0%E4%B8%80%E6%AC%A1edu%E7%AB%99%E7%82%B9%E7%9A%84%E6%96%87%E4%BB%B6%E4%B8%8A%E4%BC%A0%E6%BC%8F%E6%B4%9E%E6%8C%96%E6%8E%98/</url>
+      
+        <content type="html"><![CDATA[<h1 id="记一次edu站点的文件上传漏洞挖掘"><a href="#记一次edu站点的文件上传漏洞挖掘" class="headerlink" title="记一次edu站点的文件上传漏洞挖掘"></a>记一次edu站点的文件上传漏洞挖掘</h1><h2 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h2><p>此漏洞已报送edusrc，且已经通过审核并修复</p><h2 id="可注册站点的发现"><a href="#可注册站点的发现" class="headerlink" title="可注册站点的发现"></a>可注册站点的发现</h2><p>通常使用搜索引擎语法找出目标站点的注册点<br>domain:xx &amp;&amp; (body:”注册” || body:”register”)</p><h2 id="漏洞挖掘"><a href="#漏洞挖掘" class="headerlink" title="漏洞挖掘"></a>漏洞挖掘</h2><p>通过语法找到这个站点，是研究生课程申请系统，根据经验这种站点一般都有很多上传的功能点，如头像、简历等</p><p>现在此站点注册一个账号，测试账号：xxxx 密码：123abcABC</p><p>　　​<img src="/SRC/%E8%AE%B0%E4%B8%80%E6%AC%A1edu%E7%AB%99%E7%82%B9%E7%9A%84%E6%96%87%E4%BB%B6%E4%B8%8A%E4%BC%A0%E6%BC%8F%E6%B4%9E%E6%8C%96%E6%8E%98/net-img-5f896cfd-03c0-406d-a409-045488e33a05-toHFUcao-20230618163812-my06soe.png" alt="null">​</p><p>进入站点后，可以看到有很多研究生课程可以申请</p><p>选择申请某一个研究生</p><p>　　​<img src="/SRC/%E8%AE%B0%E4%B8%80%E6%AC%A1edu%E7%AB%99%E7%82%B9%E7%9A%84%E6%96%87%E4%BB%B6%E4%B8%8A%E4%BC%A0%E6%BC%8F%E6%B4%9E%E6%8C%96%E6%8E%98/net-img-7a3946d0-7ffb-4533-95fd-7bdd464d324a-Gh3RfFKm-20230618163812-ulnytrj.png" alt="null">​</p><p>　　</p><p>发现有文件上传的功能点，可以上传图片，直接测试一下有没有过滤<br>​<img src="/SRC/%E8%AE%B0%E4%B8%80%E6%AC%A1edu%E7%AB%99%E7%82%B9%E7%9A%84%E6%96%87%E4%BB%B6%E4%B8%8A%E4%BC%A0%E6%BC%8F%E6%B4%9E%E6%8C%96%E6%8E%98/net-img-455f80ad-3d97-4fff-9938-5613e31642f7-0hv7lh9Q-20230618163813-18l20ru.png" alt="null">​</p><p>上传一个文件抓包修改，经过测试，发现没有检测文件类型和文件内容，但是返回包没有返回上传路径<br>​<img src="/SRC/%E8%AE%B0%E4%B8%80%E6%AC%A1edu%E7%AB%99%E7%82%B9%E7%9A%84%E6%96%87%E4%BB%B6%E4%B8%8A%E4%BC%A0%E6%BC%8F%E6%B4%9E%E6%8C%96%E6%8E%98/net-img-4bcffe35-1678-429d-b3d2-7d9836dea9aa-vB1WiXuz-20230618163813-xgnl1fd.png" alt="null">​</p><p>　</p><p>修改后缀和内容，因为是后端是java，使用哥斯拉生成的木马<br>​<img src="/SRC/%E8%AE%B0%E4%B8%80%E6%AC%A1edu%E7%AB%99%E7%82%B9%E7%9A%84%E6%96%87%E4%BB%B6%E4%B8%8A%E4%BC%A0%E6%BC%8F%E6%B4%9E%E6%8C%96%E6%8E%98/net-img-83c4a873-4242-4967-87db-4b2cbfb12918-00biuAFS-20230618163813-83hvwo9.png" alt="null">​</p><p>　</p><p>发现上传成功，接下来就是要寻找上传的文件路径</p><p>经过寻找后，发现刷新网页，发现了请求图片的地址，图片地址应该时按照返回包中的id进行命名的<br>​<img src="/SRC/%E8%AE%B0%E4%B8%80%E6%AC%A1edu%E7%AB%99%E7%82%B9%E7%9A%84%E6%96%87%E4%BB%B6%E4%B8%8A%E4%BC%A0%E6%BC%8F%E6%B4%9E%E6%8C%96%E6%8E%98/net-img-cf719f3a-aeac-4f39-b2d8-883b1169dc11-PczRur4F-20230618163813-wzm30xs.png" alt="null">​</p><p>尝试访问上传的木马的id，发现页面存在，于是使用哥斯拉进行连接<br>​<img src="/SRC/%E8%AE%B0%E4%B8%80%E6%AC%A1edu%E7%AB%99%E7%82%B9%E7%9A%84%E6%96%87%E4%BB%B6%E4%B8%8A%E4%BC%A0%E6%BC%8F%E6%B4%9E%E6%8C%96%E6%8E%98/net-img-5c53f635-2d6d-4d98-9cc9-db2a72a19652-6Hb2Bc1z-20230618163813-gk4vcey.png" alt="null">​</p><p>　　url是：<a href="https://xxxxx/files//dopoBasic/08691094210c4d9288a2bdd94b306324.jsp">https://xxxxx/files//dopoBasic/08691094210c4d9288a2bdd94b306324.jsp</a></p><p>　　密码和密钥都是：hack</p><p>　　​<img src="/SRC/%E8%AE%B0%E4%B8%80%E6%AC%A1edu%E7%AB%99%E7%82%B9%E7%9A%84%E6%96%87%E4%BB%B6%E4%B8%8A%E4%BC%A0%E6%BC%8F%E6%B4%9E%E6%8C%96%E6%8E%98/net-img-3e69906f-032b-4375-9f57-a62f3f60d07f-DsVfPldY-20230618163813-mrebw1w.png" alt="null">​</p><p>　　连接成功，且是root权限</p><p>　　​<img src="/SRC/%E8%AE%B0%E4%B8%80%E6%AC%A1edu%E7%AB%99%E7%82%B9%E7%9A%84%E6%96%87%E4%BB%B6%E4%B8%8A%E4%BC%A0%E6%BC%8F%E6%B4%9E%E6%8C%96%E6%8E%98/net-img-52084da3-d966-40fe-8221-9bd68b3b54ab-PK00WOD8-20230618163813-rghr6g3.png" alt="null"><br>​<img src="/SRC/%E8%AE%B0%E4%B8%80%E6%AC%A1edu%E7%AB%99%E7%82%B9%E7%9A%84%E6%96%87%E4%BB%B6%E4%B8%8A%E4%BC%A0%E6%BC%8F%E6%B4%9E%E6%8C%96%E6%8E%98/net-img-795eee36-9a14-477f-84b7-de912e30bc5f-NTMsQ0rr-20230618163813-uvpjga2.png" alt="null">​</p>]]></content>
+      
+      
+      <categories>
+          
+          <category> SRC </category>
+          
+      </categories>
+      
+      
+        <tags>
+            
+            <tag> edusrc </tag>
+            
+            <tag> 漏洞挖掘 </tag>
+            
+            <tag> 文件上传 </tag>
+            
+        </tags>
+      
+    </entry>
+    
+    
+    
+    <entry>
       <title>2023ciscn-reading</title>
       <link href="/Writeup/WEB/reading/"/>
       <url>/Writeup/WEB/reading/</url>
