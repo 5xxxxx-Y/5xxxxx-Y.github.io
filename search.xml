@@ -4,6 +4,39 @@
   
     
     <entry>
+      <title>2023香山杯-sharedBox</title>
+      <link href="/Writeup/WEB/2023%E9%A6%99%E5%B1%B1%E6%9D%AF-sharedBox/"/>
+      <url>/Writeup/WEB/2023%E9%A6%99%E5%B1%B1%E6%9D%AF-sharedBox/</url>
+      
+        <content type="html"><![CDATA[<h1 id="sharedBox"><a href="#sharedBox" class="headerlink" title="sharedBox"></a>sharedBox</h1><blockquote><p>题目提示：kkfileview2.2.1 的漏洞利用</p></blockquote><h1 id="环境搭建"><a href="#环境搭建" class="headerlink" title="环境搭建"></a>环境搭建</h1><h2 id="项目地址"><a href="#项目地址" class="headerlink" title="项目地址"></a>项目地址</h2><p><a href="https://github.com/kekingcn/kkFileView">https://github.com/kekingcn/kkFileView</a></p><p>git 下来后用 idea 打开，将分支重置到 tagv2.2.1</p><p><img src="/Writeup/WEB/2023%E9%A6%99%E5%B1%B1%E6%9D%AF-sharedBox/image-20231016140501-ghqxob0.png" alt="image">根据文档进行部署</p><p><img src="/Writeup/WEB/2023%E9%A6%99%E5%B1%B1%E6%9D%AF-sharedBox/image-20231016140529-46fa0ql.png" alt="image">运行启动脚本 <code>startup.sh</code> ​自动安装 openoffice</p><p><img src="/Writeup/WEB/2023%E9%A6%99%E5%B1%B1%E6%9D%AF-sharedBox/image-20231016142145-sutcqdj.png" alt="image"></p><p>调试运行 <code>FilePreviewApplication</code> ​的 main 方法</p><p><img src="/Writeup/WEB/2023%E9%A6%99%E5%B1%B1%E6%9D%AF-sharedBox/image-20231016145020-shtx0u8.png" alt="image">默认端口是 8012</p><h1 id="漏洞分析"><a href="#漏洞分析" class="headerlink" title="漏洞分析"></a>漏洞分析</h1><p>KKFileView 有三个路由</p><p><img src="/Writeup/WEB/2023%E9%A6%99%E5%B1%B1%E6%9D%AF-sharedBox/image-20231016145439-h7t9wbf.png" alt="image"></p><h2 id="OnlinePreviewController-getCorsFile-存在任意文件读取漏洞"><a href="#OnlinePreviewController-getCorsFile-存在任意文件读取漏洞" class="headerlink" title="OnlinePreviewController#getCorsFile 存在任意文件读取漏洞"></a>OnlinePreviewController#getCorsFile 存在任意文件读取漏洞</h2><p>根据代码和网上的文章，可知 <code>getCorsFile</code> ​路由存在任意文件读取漏洞</p><p>对输入的 urlStr 没有过滤，可以直接通过 file 协议读取本地文件</p><p><img src="/Writeup/WEB/2023%E9%A6%99%E5%B1%B1%E6%9D%AF-sharedBox/image-20231016154707-hawfjfs.png" alt="image">​</p><p><img src="/Writeup/WEB/2023%E9%A6%99%E5%B1%B1%E6%9D%AF-sharedBox/image-20231016151157-0rsgddm.png" alt="image">​<br>但是在题目的环境中对这个路由进行了限制，直接访问的话会返回 403</p><p>所以这题接下来就是怎么绕过出题人对于这个路由的限制，再利用任意文件读取漏洞</p><h2 id="OnlinePreviewController-onlinePreview-存在-SSRF-漏洞"><a href="#OnlinePreviewController-onlinePreview-存在-SSRF-漏洞" class="headerlink" title="OnlinePreviewController#onlinePreview 存在 SSRF 漏洞"></a>OnlinePreviewController#onlinePreview 存在 SSRF 漏洞</h2><h3 id="逝逝-ssrf-打-getCorsFile-的文件读取"><a href="#逝逝-ssrf-打-getCorsFile-的文件读取" class="headerlink" title="逝逝 ssrf 打 getCorsFile 的文件读取"></a>逝逝 ssrf 打 getCorsFile 的文件读取</h3><p><img src="/Writeup/WEB/2023%E9%A6%99%E5%B1%B1%E6%9D%AF-sharedBox/image-20231016164806-v4fv5so.png" alt="image"></p><p>这处功能点从源码分析也是没有对输入字符串进行过滤的，存在 ssrf 漏洞</p><p>那么我们此时的目标就是<br>通过此处的 ssrf 来请求 getCorsFile 从而利用任意文件读取漏洞</p><p>那么我们现在先直接利用一下逝逝</p><p><img src="/Writeup/WEB/2023%E9%A6%99%E5%B1%B1%E6%9D%AF-sharedBox/image-20231016165848-hc41a4a.png" alt="image">果不其然，回显不支持该格式</p><h3 id="分析文件类型判断"><a href="#分析文件类型判断" class="headerlink" title="分析文件类型判断"></a>分析文件类型判断</h3><p>那么先分析一下为啥不支持，打个断点</p><p><img src="/Writeup/WEB/2023%E9%A6%99%E5%B1%B1%E6%9D%AF-sharedBox/image-20231016170245-05xdq3v.png" alt="image">​</p><p>原来截取了后缀，得到了 getCorsFile，而系统配置里并没有预设这个后缀名，当然就返回了不支持了</p><p>我们翻一下源代码，在处我们可以看到系统预设了几种文件类型，而 picture、pdf 这些经过测试后显然是不行的，因为会在页面返回图片等，无法返回我们想要读取的 flag 文本</p><p>那么我们又留意到了有 <code>simText</code> ​这个文件类型，而包含的后缀有 txt、jsp 等等，可知这是类文本 的文件类型，按理说是可以返回文件内容的</p><p><img src="/Writeup/WEB/2023%E9%A6%99%E5%B1%B1%E6%9D%AF-sharedBox/image-20231016161236-1djdwmh.png" alt="image">​那我们就测试一下</p><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">http:<span class="comment">//localhost:8012/onlinePreview?url=http://localhost:8012/getCorsFile.txt?urlPath=file%3A%2F%2F%2Fetc%2Fpasswd</span></span><br></pre></td></tr></table></figure><p>发现页面返回空白，回源码看一下<img src="/Writeup/WEB/2023%E9%A6%99%E5%B1%B1%E6%9D%AF-sharedBox/image-20231016172427-8gtrs4x.png" alt="image">​</p><p>发现竟然多出了两个文件，而且还把 &#x2F;etc&#x2F;passwd 的内容写进了里面，这是不是就有利用成功的可能性了</p><p><img src="/Writeup/WEB/2023%E9%A6%99%E5%B1%B1%E6%9D%AF-sharedBox/image-20231016172506-6u3szxk.png" alt="image"></p><h3 id="为什么会保存文件"><a href="#为什么会保存文件" class="headerlink" title="为什么会保存文件"></a>为什么会保存文件</h3><p>跟进代码，看一下为什么会写入文件</p><p><img src="/Writeup/WEB/2023%E9%A6%99%E5%B1%B1%E6%9D%AF-sharedBox/image-20231016181432-26o4lic.png" alt="image">可以看到 onlinePreview 最后调用了 <code>filePreviewHandle</code>​，继而调用了 <code>downLoad</code>​</p><p><img src="/Writeup/WEB/2023%E9%A6%99%E5%B1%B1%E6%9D%AF-sharedBox/image-20231016181520-d1mq6ua.png" alt="image">而在 <code>downLoad</code> ​处调用 <code>saveBytesToOutStream</code> ​函数对文件内容进行了写入</p><h3 id="原来是-spring-boot-1-x"><a href="#原来是-spring-boot-1-x" class="headerlink" title="原来是 spring-boot 1.x"></a><img src="/Writeup/WEB/2023%E9%A6%99%E5%B1%B1%E6%9D%AF-sharedBox/image-20231016182500-sm90bmt.png" alt="image"><img src="/Writeup/WEB/2023%E9%A6%99%E5%B1%B1%E6%9D%AF-sharedBox/image-20231016182517-kng53ei.png" alt="image">原来是 spring-boot 1.x</h3><p>一开始我看 wp 并不懂为啥 ssrf 请求 <code>http://localhost:8012/getCorsFile.txt?urlPath=file%3A%2F%2F%2Fetc%2Fpasswd</code> ​可以读取到文件内容，<code>getCorsFile.txt</code> ​和 <code>getCorsFile</code> ​能一样吗，为啥能执行 <code>getCorsFile</code> ​方法的功能</p><p>原来 kkFileView 默认使用的是 spring-boot 1.x</p><p><img src="/Writeup/WEB/2023%E9%A6%99%E5%B1%B1%E6%9D%AF-sharedBox/image-20231016183802-he2zgx1.png" alt="image"></p><p>而如下引述</p><blockquote><p>在 Spring Boot1.5 的版本中，假如我们定义了一个’&#x2F;show’接口，默认情况下，我们可以按照&#x2F;show 来访问页面，也可以按照&#x2F;show.do 这样带有’.do’后缀的接口来访问资源。</p><p>但是到了 Spring Boot2.x 之后，我们发现再使用.do 的扩展名就无法访问资源了。</p><p>也就是说，现在的 Spring Boot 在默认情况下，禁用了后缀匹配模式！</p></blockquote><p>刚刚好这又是 1.5.8，因此请求 <code>/getCorsFile.txt</code> ​既能通过代码的后缀检测，又能执行 <code>getCorsFile</code> ​函数<br>所以才会出现上面的 payload</p><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">http:<span class="comment">//localhost:8012/onlinePreview?url=http://localhost:8012/getCorsFile.txt?urlPath=file%3A%2F%2F%2Fetc%2Fpasswd</span></span><br></pre></td></tr></table></figure><p><img src="/Writeup/WEB/2023%E9%A6%99%E5%B1%B1%E6%9D%AF-sharedBox/image-20231016163151-cbrmvqy.png" alt="image">​</p><h3 id="如何读文件"><a href="#如何读文件" class="headerlink" title="如何读文件"></a>如何读文件</h3><p>那么我们怎么才能读到这个 getCorsFile.txt 呢</p><p><img src="/Writeup/WEB/2023%E9%A6%99%E5%B1%B1%E6%9D%AF-sharedBox/image-20231016185158-7mouiu3.png" alt="image"><br>读 demo 的图片是 <code>http://localhost:8012/onlinePreview?url=http%3A%2F%2Flocalhost%3A8012%2Fdemo%2FAb1azE.png</code>​<br>那我读 getCorsFile.txt 请求<br>​<code>http://localhost:8012/onlinePreview?url=http%3A%2F%2Flocalhost%3A8012%2FgetCorsFile.txt</code> ​不就好了？</p><p><img src="/Writeup/WEB/2023%E9%A6%99%E5%B1%B1%E6%9D%AF-sharedBox/image-20231016185049-27049hl.png" alt="image">​</p><p>可惜请求 <code>http://localhost:8012/onlinePreview?url=http%3A%2F%2Flocalhost%3A8012%2FgetCorsFile.txt</code> ​就会被当成访问 <code>getCorsFile</code> ​这个路由捏！当然不可能读到文件啦</p><p>所以我们需要请求 <code>http://localhost:8012/%09getCorsFile.txt</code>​，令服务器将正确识别文件名为 <code>getCorsFile.txt</code>​，从而正确读取到文件内容（具体为啥这样可以我也不太懂</p><p><img src="/Writeup/WEB/2023%E9%A6%99%E5%B1%B1%E6%9D%AF-sharedBox/image-20231016185732-gdwuvsh.png" alt="image">或者直接访问也可以</p><p><img src="/Writeup/WEB/2023%E9%A6%99%E5%B1%B1%E6%9D%AF-sharedBox/image-20231016185754-412a6su.png" alt="image">​</p><h1 id="题解"><a href="#题解" class="headerlink" title="题解"></a>题解</h1><p>那么当 getCorsFile 被限制后，通过 getCorsFile 的 ssrf 打 getCorsFile 的文件读取 这个利用的分析就到此结束了</p><p>比赛环境已经关了，赛题的后续利用无法复现了</p><p>下面贴上 Lxxx 师傅的 wp（<a href="https://www.yuque.com/dat0u/ctf/lbp2gfi6gttxsymb">https://www.yuque.com/dat0u/ctf/lbp2gfi6gttxsymb</a>）</p><blockquote><p><strong>最终 Payload 如下，题目应该是在 nginx 或者&#x2F;onlinePreview 路由处对 proc、fd 关键字做了匹配，由于是 SSRF，会发起两次 http 请求，因此可以通过双重 URL 编码绕过</strong></p><figure class="highlight http"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">GET</span> <span class="string">/fileview/onlinePreview?url=http://localhost:8012/getCorsFile.jsp?urlPath=file:///%2570%2572%256f%2563/29/%2566%2564/6</span> <span class="meta">HTTP/1.1</span></span><br><span class="line"><span class="attribute">Host</span><span class="punctuation">: </span>101.201.35.76:22873</span><br><span class="line"></span><br></pre></td></tr></table></figure><p><img src="https://cdn.nlark.com/yuque/0/2023/png/28160573/1697365412037-bb3ac8f7-3a97-4b28-9dcc-503ee2647812.png">​</p><p><strong>绕过后，读取的文件内容会保存在 getCorsFile.jsp 中，用 %09、%02 等字符绕过一下读取文件即可</strong></p><figure class="highlight http"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">GET</span> <span class="string">/fileview/%09getCorsFile.jsp</span> <span class="meta">HTTP/1.1</span></span><br><span class="line"><span class="attribute">Host</span><span class="punctuation">: </span>101.201.35.76:22873</span><br><span class="line"></span><br></pre></td></tr></table></figure><p><img src="https://cdn.nlark.com/yuque/0/2023/png/28160573/1697365332014-99906ed5-3630-46fe-ae80-85b9493b8ec6.png">​</p><p><strong>比赛的时候，&#x2F;flag 提示我们要 RCE，但是这题可以通过非预期读取&#x2F;proc&#x2F;29&#x2F;fd&#x2F;6 获取到 flag</strong></p><p><img src="https://cdn.nlark.com/yuque/0/2023/png/28160573/1697366910529-e92177cb-5726-40cf-89f2-16d0643c38e4.png">​</p><p><strong>预期应该是读&#x2F;root&#x2F;flag.java 文件，然后再往下走……</strong></p></blockquote>]]></content>
+      
+      
+      <categories>
+          
+          <category> Writeup </category>
+          
+          <category> WEB </category>
+          
+      </categories>
+      
+      
+        <tags>
+            
+            <tag> 代码审计 </tag>
+            
+            <tag> CTF </tag>
+            
+            <tag> 漏洞分析 </tag>
+            
+            <tag> kkfileview </tag>
+            
+        </tags>
+      
+    </entry>
+    
+    
+    
+    <entry>
       <title>MySecret</title>
       <link href="/secret/MySecret/"/>
       <url>/secret/MySecret/</url>
@@ -47,9 +80,9 @@
             
             <tag> 代码审计 </tag>
             
-            <tag> 命令执行 </tag>
-            
             <tag> 漏洞分析 </tag>
+            
+            <tag> 命令执行 </tag>
             
         </tags>
       
@@ -76,9 +109,9 @@
             
             <tag> 代码审计 </tag>
             
-            <tag> 命令执行 </tag>
-            
             <tag> 漏洞分析 </tag>
+            
+            <tag> 命令执行 </tag>
             
         </tags>
       
