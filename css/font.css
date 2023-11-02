@@ -1,0 +1,8 @@
+@font-face{
+    font-family: 'monaco';
+    font-display: swap;
+    src: url('../font/monaco.ttf') format("truetype");
+}
+body {
+    font-family: 'monaco';
+}
