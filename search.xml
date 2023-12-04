@@ -4,6 +4,37 @@
   
     
     <entry>
+      <title>WebsiteGuide漏洞分析</title>
+      <link href="/%E6%BC%8F%E6%B4%9E%E5%88%86%E6%9E%90/WebsiteGuide%E6%BC%8F%E6%B4%9E%E5%88%86%E6%9E%90/"/>
+      <url>/%E6%BC%8F%E6%B4%9E%E5%88%86%E6%9E%90/WebsiteGuide%E6%BC%8F%E6%B4%9E%E5%88%86%E6%9E%90/</url>
+      
+        <content type="html"><![CDATA[<div class="hbe hbe-container" id="hexo-blog-encrypt" data-wpm="Oh, this is an invalid password. Check and try again, please." data-whm="OOPS, these decrypted content may changed, but you can still have a look.">  <script id="hbeData" type="hbeData" data-hmacdigest="28b695a34c37fdc93b4de3ffa3e70f394453cfcda39e9b2e280603d9b8fae03b">c1c4539c0cf8a4314ac83fd3423e1b19de7b2e5cd70461c51b55ea69f1d5e8e2</script>  <div class="hbe hbe-content">    <div class="hbe hbe-input hbe-input-default">      <input class="hbe hbe-input-field hbe-input-field-default" type="password" id="hbePass">      <label class="hbe hbe-input-label hbe-input-label-default" for="hbePass">        <span class="hbe hbe-input-label-content hbe-input-label-content-default">Hey, password is required here.</span>      </label>    </div>  </div></div><script data-pjax src="/lib/hbe.js"></script><link href="/css/hbe.style.css" rel="stylesheet" type="text/css">]]></content>
+      
+      
+      <categories>
+          
+          <category> 漏洞分析 </category>
+          
+      </categories>
+      
+      
+        <tags>
+            
+            <tag> 代码审计 </tag>
+            
+            <tag> 漏洞分析 </tag>
+            
+            <tag> 命令执行 </tag>
+            
+            <tag> jwt伪造，权限提升 </tag>
+            
+        </tags>
+      
+    </entry>
+    
+    
+    
+    <entry>
       <title>2023香山杯-sharedBox</title>
       <link href="/Writeup/WEB/2023%E9%A6%99%E5%B1%B1%E6%9D%AF-sharedBox/"/>
       <url>/Writeup/WEB/2023%E9%A6%99%E5%B1%B1%E6%9D%AF-sharedBox/</url>
